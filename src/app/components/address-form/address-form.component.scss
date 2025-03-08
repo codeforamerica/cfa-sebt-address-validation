@@ -1,0 +1,15 @@
+:host {
+    display: flex;
+    flex-direction: row;
+    margin-top: 2rem;
+}
+
+.vertical-divider {
+    border-left: 1px solid darkgray;
+    height: 80vh;
+    margin: 4rem;
+}
+
+.right-panel {
+    margin-top: 6rem;
+}
