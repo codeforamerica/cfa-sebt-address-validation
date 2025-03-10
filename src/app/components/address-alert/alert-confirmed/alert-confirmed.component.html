@@ -1,0 +1,27 @@
+<div class="usa-alert usa-alert--success usa-alert--no-icon" 
+    [class.usa-alert--success]="!hasWarnings()"
+    [class.usa-alert--warning]="hasWarnings()">
+    <div class="usa-alert__body">
+        <h4 class="usa-alert__heading">Standardized address</h4>
+        <p class="usa-alert__text">
+            {{addressCandidate().deliveryLine1}}<br />
+            @if (addressCandidate().deliveryLine2) {
+            {{addressCandidate().deliveryLine2}}<br />
+            }
+            {{addressCandidate().lastLine}}<br />
+        </p>
+
+        @if (hasWarnings()) {
+            <strong class="margin-top-3">Warnings:</strong>
+            <ul class="margin-top-1">
+                @for (warning of warnings(); track warning) {
+                    <li>{{warning}}</li>
+                }
+            </ul>
+        }
+
+        <button class="usa-button usa-button--outline margin-top-1" type="button" (click)="acceptStandardized.emit()">
+            Use This Version
+        </button>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+<div class="usa-alert usa-alert--warning">
+    <div class="usa-alert__body">
+        <h4 class="usa-alert__heading">Address needs correction</h4>
+        <p class="usa-alert__text">
+            The address you provided has the following issues:            
+        </p>
+        <ul class="usa-alert__text">
+            @for (message of dpvMessages(); track message) {
+                <li>{{message}}</li>
+            }
+        </ul>
+    </div>
+</div>

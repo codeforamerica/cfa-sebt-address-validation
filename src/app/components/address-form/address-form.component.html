@@ -1,5 +1,5 @@
 <div class="left-panel">
-    <form class="usa-form usa-form--large">
+    <form class="usa-form usa-form--large" [formGroup]="addressForm">
         <fieldset class="usa-fieldset">
             <legend class="usa-legend usa-legend--large">
                 Mailing address
@@ -11,36 +11,40 @@
                     >*</abbr
                 >).
             </p>
-            <label class="usa-label" for="mailing-address-1"
-                >Street address</label
-            >
+
+            <label class="usa-label" for="mailing-address-1">
+                Street address
+                <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+            </label>
             <input
                 class="usa-input"
                 id="mailing-address-1"
                 name="mailing-address-1"
+                required
+                formControlName="streetAddress"
             />
-            <label class="usa-label" for="mailing-address-2"
-                >Street address line 2</label
-            >
+
+            <label class="usa-label" for="mailing-address-2">
+                Unit/Apartment #
+            </label>
             <input
                 class="usa-input"
                 id="mailing-address-2"
                 name="mailing-address-2"
+                formControlName="unitAptNumber"
             />
-            <label class="usa-label" for="city"
-                >City
-                <abbr title="required" class="usa-hint usa-hint--required"
-                    >*</abbr
-                ></label
-            >
-            <input class="usa-input" id="city" name="city" required />
-            <label class="usa-label" for="state"
-                >State, territory, or military post
-                <abbr title="required" class="usa-hint usa-hint--required"
-                    >*</abbr
-                ></label
-            >
-            <select class="usa-select" id="state" name="state">
+
+            <label class="usa-label" for="city">
+                City
+                <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+            </label>
+            <input class="usa-input" id="city" name="city" required formControlName="city" />
+
+            <label class="usa-label" for="state">
+                State, territory, or military post
+                <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+            </label>
+            <select class="usa-select" id="state" name="state" required formControlName="state">
                 <option value>- Select -</option>
                 <option value="AL">AL - Alabama</option>
                 <option value="AK">AK - Alaska</option>
@@ -108,16 +112,22 @@
                 <option value="AE">AE - Armed Forces Middle East</option>
                 <option value="AP">AP - Armed Forces Pacific</option>
             </select>
-            <label class="usa-label" for="zip">ZIP code</label>
+
+            <label class="usa-label" for="zip">
+                ZIP code
+                <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+            </label>
             <input
                 class="usa-input usa-input--medium"
                 id="zip"
                 name="zip"
                 pattern="[\d]{5}(-[\d]{4})?"
+                required
+                formControlName="postalCode"
             />
         </fieldset>
 
-        <button class="usa-button usa-button--big" type="button">
+        <button class="usa-button usa-button--big" type="button" (click)="validateAddress()">
             Validate
         </button>
     </form>
@@ -126,37 +136,25 @@
 <div class="vertical-divider"></div>
 
 <div class="right-panel">
-    <div
-        class="submitted-address usa-summary-box"
-        role="region"
-        aria-labelledby="summary-box-key-information"
-    >
-        <div class="usa-summary-box__body">
-            <h4
-                class="usa-summary-box__heading"
-                id="summary-box-key-information"
-            >
-                Address you submitted
-            </h4>
-            <div class="usa-summary-box__text">Lorem ipsum dolor sit</div>
-            <button class="usa-button usa-button--outline" type="button">Keep this address</button>
-        </div>
-    </div>
+    @switch (addressMatchState()) {
+        @case (AddressMatchState.Confirmed) {
+            <app-alert-confirmed 
+                [enteredAddress]="this.addressForm.getRawValue()"
+                [addressCandidate]="addressCandidate()!"
+                (acceptStandardized)="acceptStandardized()"
+            />
+        }
 
-    <div
-        class="suggested-address usa-summary-box"
-        role="region"
-        aria-labelledby="summary-box-key-information"
-    >
-        <div class="usa-summary-box__body">
-            <h4
-                class="usa-summary-box__heading"
-                id="summary-box-key-information"
-            >
-                Suggested Address
-            </h4>
-            <div class="usa-summary-box__text">Lorem ipsum dolor sit</div>
-            <button class="usa-button usa-button--outline" type="button">Use this address instead</button>
-        </div>
-    </div>
+        @case (AddressMatchState.NotConfirmed) {
+            <app-alert-not-confirmed />
+        }
+
+        @case (AddressMatchState.SecondaryUnrecognized) {
+            <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+        }
+
+        @case (AddressMatchState.SecondaryMissing) {
+            <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+        }
+    }
 </div>
