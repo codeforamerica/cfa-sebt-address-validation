@@ -17,7 +17,7 @@ export class SmartyValidationService {
     private readonly client: UsStreetApiClient;
 
     constructor() {
- <SMARTY_KEY_GOES_HERE>//process.env.SMARTY_EMBEDDED_KEY;
+        const key = '<SMARTY_KEY_GOES_HERE>'
         const credentials = new SmartyCore.SharedCredentials(key);
         const clientBuilder = new SmartyCore.ClientBuilder(
             credentials

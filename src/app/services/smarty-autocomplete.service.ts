@@ -16,7 +16,7 @@ export class SmartyAutocompleteService {
     private readonly client: UsAutocompleteProClient;
 
     constructor() {
- <SMARTY_KEY_GOES_HERE>//process.env.SMARTY_EMBEDDED_KEY;
+        const key = '<SMARTY_KEY_GOES_HERE>'
         const credentials = new SmartyCore.SharedCredentials(key);
         const clientBuilder = new SmartyCore.ClientBuilder(
             credentials
