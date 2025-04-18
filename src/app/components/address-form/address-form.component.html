@@ -1,29 +1,24 @@
-@if (!submitted()) {
-    <div class="left-panel">
-        <form class="usa-form usa-form--large" [formGroup]="addressForm">
-            <fieldset class="usa-fieldset">
+<form class="usa-form usa-form--large" [formGroup]="addressForm">
+    <fieldset class="usa-fieldset">
+        <div class="grid-row">
+            <div class="grid-col-auto">
                 <legend class="usa-legend usa-legend--large">
                     Mailing address
                 </legend>
                 <p>
-                    Required fields are marked with an asterisk (<abbr
-                        title="required"
-                        class="usa-hint usa-hint--required"
-                        >*</abbr
-                    >).
+                    Required fields are marked with an asterisk (<abbr title="required"
+                        class="usa-hint usa-hint--required">*</abbr>).
                 </p>
+            </div>
+        </div>
 
+        <div class="grid-row">
+            @if (!submitted()) {
+            <div class="tablet:grid-col-5 left-panel">
                 <div class="usa-checkbox">
-                    <input
-                    class="usa-checkbox__input"
-                    id="check-use-autocomplete"
-                    type="checkbox"
-                    [(ngModel)]="useAutocomplete"
-                    [ngModelOptions]="{ standalone: true }"
-                    />
-                    <label class="usa-checkbox__label" for="check-use-autocomplete"
-                    >Use Autocomplete</label
-                    >
+                    <input class="usa-checkbox__input" id="check-use-autocomplete" type="checkbox"
+                        [(ngModel)]="useAutocomplete" [ngModelOptions]="{ standalone: true }" />
+                    <label class="usa-checkbox__label" for="check-use-autocomplete">Use Autocomplete</label>
                 </div>
 
                 @if (!useAutocomplete()) {
@@ -31,40 +26,35 @@
                         Street address
                         <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
                     </label>
-                    <input
-                        class="usa-input"
-                        id="mailing-address-1"
-                        name="mailing-address-1"
-                        required
-                        formControlName="streetAddress"
-                    />
+                    <input class="usa-input" id="mailing-address-1" name="mailing-address-1" required
+                        formControlName="streetAddress" />
                     @if (formErrors().streetAddress?.required) {
                         <span class="form-error-message">Street address is required.</span>
                     }
-                }
-                @else {
+                } @else {
                     <label class="usa-label" for="street-address-combo-box">
                         Street address
                         <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
                     </label>
-                    <div class="usa-combo-box">
-                        <select #streetAddressComboBox class="usa-select" name="street-address-combo-box" id="street-address-combo-box">
+                    <app-address-autocomplete
+                        [enableTypeahead]="useAutocomplete()"
+                        [suggestionFilters]="suggestionFilters"
+                        (suggestionSelected)="updateFormFromSuggestion($event)" />
+                    <!-- <div class="usa-combo-box">
+                        <select #streetAddressComboBox class="usa-select" name="street-address-combo-box"
+                            id="street-address-combo-box">
                             @if (autocompleteSelection()) {
                                 <option [value]="autocompleteSelection()">{{autocompleteSelection()}}</option>
                             }
                         </select>
-                    </div>
+                    </div> -->
                 }
 
                 <label class="usa-label" for="mailing-address-2">
                     Unit/Apartment #
                 </label>
-                <input
-                    class="usa-input"
-                    id="mailing-address-2"
-                    name="mailing-address-2"
-                    formControlName="unitAptNumber"
-                />
+                <input class="usa-input" id="mailing-address-2" name="mailing-address-2"
+                    formControlName="unitAptNumber" />
 
                 <label class="usa-label" for="city">
                     City
@@ -147,6 +137,7 @@
                     <option value="AE">AE - Armed Forces Middle East</option>
                     <option value="AP">AP - Armed Forces Pacific</option>
                 </select>
+
                 @if (formErrors().state?.required) {
                     <span class="form-error-message">State is required.</span>
                 }
@@ -155,85 +146,81 @@
                     ZIP code
                     <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
                 </label>
-                <input
-                    class="usa-input usa-input--medium"
-                    id="zip"
-                    name="zip"
-                    pattern="[\d]{5}(-[\d]{4})?"
-                    required
-                    formControlName="postalCode"
-                />
+                <input class="usa-input usa-input--medium" id="zip" name="zip" pattern="[\d]{5}(-[\d]{4})?" required
+                    formControlName="postalCode" />
+
                 @if (formErrors().postalCode?.required) {
                     <span class="form-error-message">ZIP code is required.</span>
                 }
                 @if (formErrors().postalCode?.pattern) {
-                    <span class="form-error-message">ZIP code must be either 5 digits or 9 digits including the plus-4 code.</span>
+                    <span class="form-error-message">ZIP code must be either 5 digits or 9 digits including the plus-4
+                        code.</span>
                 }
-            </fieldset>
 
-            @if (!readyToSubmit()) {
-                <button class="usa-button usa-button--big" type="button" (click)="validateAddress()">
-                    Validate
-                </button>
-            } @else {
-                <button class="usa-button usa-button--big" type="button" (click)="submit()">
-                    Submit Application
-                </button>
+                @if (!readyToSubmit()) {
+                    <button class="usa-button usa-button--big" type="button" (click)="validateAddress()">
+                        Validate
+                    </button>
+                } @else {
+                    <button class="usa-button usa-button--big" type="button" (click)="submit()">
+                        Submit Application
+                    </button>
+                }
+                <!-- </form> -->
+            </div>
+
+            <!-- <div class="grid-col-1 vertical-divider"></div> -->
             }
-        </form>
-    </div>
+            <div class="tablet:grid-col-1"></div>
 
-    <div class="vertical-divider"></div>
-}
+            <div class="tablet:grid-col-5 right-panel">
+                @if (showValidationTroubleWarning()) {
+                    <div class="usa-alert usa-alert--warning margin-bottom-2">
+                        <div class="usa-alert__body">
+                            <!-- <h4 class="usa-alert__heading">Address needs correction</h4> -->
+                            <p class="usa-alert__text">
+                                We're having trouble validating the address you are submitting.
+                                On the next attempt, we will accept you address as submitted,
+                                but we cannot guarantee USPS delivery.
+                            </p>
+                            <p>
+                                You may receive further
+                                communication from us to confirm your mailing address.
+                            </p>
+                        </div>
+                    </div>
+                }
 
-<div class="right-panel">
-    @if (showValidationTroubleWarning()) {
-        <div class="usa-alert usa-alert--warning margin-bottom-2">
-            <div class="usa-alert__body">
-                <!-- <h4 class="usa-alert__heading">Address needs correction</h4> -->
-                <p class="usa-alert__text">
-                    We're having trouble validating the address you are submitting.
-                    On the next attempt, we will accept you address as submitted,
-                    but we cannot guarantee USPS delivery.
-                </p>
-                <p>
-                    You may receive further
-                    communication from us to confirm your mailing address.
-                </p>
+                @if (submitted()) {
+                    <div class="usa-alert usa-alert--success usa-alert--no-icon">
+                        <div class="usa-alert__body">
+                            <h4 class="usa-alert__heading">Application submitted</h4>
+                            <p class="usa-alert__text">
+                                Thank you for submitting your application!
+                            </p>
+                        </div>
+                    </div>
+                } @else {
+                    @switch (addressMatchState()) {
+                        @case (AddressMatchState.Confirmed) {
+                            <app-alert-confirmed [enteredAddress]="this.addressForm.getRawValue()"
+                                [addressCandidate]="addressCandidate()!" (acceptStandardized)="acceptStandardized()" />
+                        }
+
+                        @case (AddressMatchState.NotConfirmed) {
+                            <app-alert-not-confirmed />
+                        }
+
+                        @case (AddressMatchState.SecondaryUnrecognized) {
+                            <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+                        }
+
+                        @case (AddressMatchState.SecondaryMissing) {
+                            <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+                        }
+                    }
+                }
             </div>
         </div>
-    }
-
-    @if (submitted()) {
-        <div class="usa-alert usa-alert--success usa-alert--no-icon">
-            <div class="usa-alert__body">
-                <h4 class="usa-alert__heading">Application submitted</h4>
-                <p class="usa-alert__text">
-                    Thank you for submitting your application!
-                </p>
-            </div>
-        </div>
-    } @else {
-        @switch (addressMatchState()) {
-            @case (AddressMatchState.Confirmed) {
-                <app-alert-confirmed
-                    [enteredAddress]="this.addressForm.getRawValue()"
-                    [addressCandidate]="addressCandidate()!"
-                    (acceptStandardized)="acceptStandardized()"
-                />
-            }
-
-            @case (AddressMatchState.NotConfirmed) {
-                <app-alert-not-confirmed />
-            }
-
-            @case (AddressMatchState.SecondaryUnrecognized) {
-                <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
-            }
-
-            @case (AddressMatchState.SecondaryMissing) {
-                <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
-            }
-        }
-    }
-</div>
+    </fieldset>
+</form>

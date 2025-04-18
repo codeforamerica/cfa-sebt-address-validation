@@ -44,6 +44,11 @@
             "prerender": true,
             "ssr": {
               "entry": "src/server.ts"
+            },
+            "stylePreprocessorOptions": {
+                "includePaths": [
+                    "./node_modules/@uswds/uswds/packages"
+                ]
             }
           },
           "configurations": {

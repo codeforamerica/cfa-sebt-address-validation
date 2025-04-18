@@ -1,0 +1,10 @@
+<!-- <input class="usa-input" id="mailing-address-1" name="mailing-address-1" required /> -->
+
+<div class="usa-combo-box">
+    <select #streetAddressComboBox class="usa-select" name="street-address-combo-box"
+        id="street-address-combo-box">
+        @if (autocompleteSelection()) {
+            <option [value]="autocompleteSelection()">{{autocompleteSelection()}}</option>
+        }
+    </select>
+</div>

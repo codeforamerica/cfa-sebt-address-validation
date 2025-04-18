@@ -36,13 +36,14 @@ export class SmartyAutocompleteService {
         const preferredStates = preferState ? [preferState] : ['DC', 'MD', 'VA'];
 
         if (preferPostalCode) {
-            lookup.preferZIPCodes = [preferPostalCode];
+            // lookup.preferZIPCodes = [preferPostalCode];
+            lookup.includeOnlyZIPCodes = [preferPostalCode];
         } else {
-            lookup.preferCities = [preferCity];
-            lookup.preferStates = preferredStates;
+            lookup.includeOnlyCities = [preferCity];
+            lookup.includeOnlyStates = preferredStates;
+            // lookup.preferCities = [preferCity];
+            // lookup.preferStates = preferredStates;
         }
-
-        console.log({ ...lookup });
 
         await this.client.send(lookup);
 
