@@ -4,6 +4,20 @@
     margin-top: 2rem;
 }
 
+input.usa-input.ng-invalid.ng-touched {
+    border-color: red;
+    border-width: 2px;
+}
+
+span.form-error-message {
+    color: red;
+    font-size: smaller;
+}
+
+.left-panel {
+    min-width: 40vw;
+}
+
 .vertical-divider {
     border-left: 1px solid darkgray;
     height: 80vh;

@@ -1,160 +1,239 @@
-<div class="left-panel">
-    <form class="usa-form usa-form--large" [formGroup]="addressForm">
-        <fieldset class="usa-fieldset">
-            <legend class="usa-legend usa-legend--large">
-                Mailing address
-            </legend>
-            <p>
-                Required fields are marked with an asterisk (<abbr
-                    title="required"
-                    class="usa-hint usa-hint--required"
-                    >*</abbr
-                >).
-            </p>
+@if (!submitted()) {
+    <div class="left-panel">
+        <form class="usa-form usa-form--large" [formGroup]="addressForm">
+            <fieldset class="usa-fieldset">
+                <legend class="usa-legend usa-legend--large">
+                    Mailing address
+                </legend>
+                <p>
+                    Required fields are marked with an asterisk (<abbr
+                        title="required"
+                        class="usa-hint usa-hint--required"
+                        >*</abbr
+                    >).
+                </p>
 
-            <label class="usa-label" for="mailing-address-1">
-                Street address
-                <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-            </label>
-            <input
-                class="usa-input"
-                id="mailing-address-1"
-                name="mailing-address-1"
-                required
-                formControlName="streetAddress"
-            />
+                <div class="usa-checkbox">
+                    <input
+                    class="usa-checkbox__input"
+                    id="check-use-autocomplete"
+                    type="checkbox"
+                    [(ngModel)]="useAutocomplete"
+                    [ngModelOptions]="{ standalone: true }"
+                    />
+                    <label class="usa-checkbox__label" for="check-use-autocomplete"
+                    >Use Autocomplete</label
+                    >
+                </div>
 
-            <label class="usa-label" for="mailing-address-2">
-                Unit/Apartment #
-            </label>
-            <input
-                class="usa-input"
-                id="mailing-address-2"
-                name="mailing-address-2"
-                formControlName="unitAptNumber"
-            />
+                @if (!useAutocomplete()) {
+                    <label class="usa-label" for="mailing-address-1">
+                        Street address
+                        <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                    </label>
+                    <input
+                        class="usa-input"
+                        id="mailing-address-1"
+                        name="mailing-address-1"
+                        required
+                        formControlName="streetAddress"
+                    />
+                    @if (formErrors().streetAddress?.required) {
+                        <span class="form-error-message">Street address is required.</span>
+                    }
+                }
+                @else {
+                    <label class="usa-label" for="street-address-combo-box">
+                        Street address
+                        <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                    </label>
+                    <div class="usa-combo-box">
+                        <select #streetAddressComboBox class="usa-select" name="street-address-combo-box" id="street-address-combo-box">
+                            @if (autocompleteSelection()) {
+                                <option [value]="autocompleteSelection()">{{autocompleteSelection()}}</option>
+                            }
+                        </select>
+                    </div>
+                }
 
-            <label class="usa-label" for="city">
-                City
-                <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-            </label>
-            <input class="usa-input" id="city" name="city" required formControlName="city" />
+                <label class="usa-label" for="mailing-address-2">
+                    Unit/Apartment #
+                </label>
+                <input
+                    class="usa-input"
+                    id="mailing-address-2"
+                    name="mailing-address-2"
+                    formControlName="unitAptNumber"
+                />
 
-            <label class="usa-label" for="state">
-                State, territory, or military post
-                <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-            </label>
-            <select class="usa-select" id="state" name="state" required formControlName="state">
-                <option value>- Select -</option>
-                <option value="AL">AL - Alabama</option>
-                <option value="AK">AK - Alaska</option>
-                <option value="AS">AS - American Samoa</option>
-                <option value="AZ">AZ - Arizona</option>
-                <option value="AR">AR - Arkansas</option>
-                <option value="CA">CA - California</option>
-                <option value="CO">CO - Colorado</option>
-                <option value="CT">CT - Connecticut</option>
-                <option value="DE">DE - Delaware</option>
-                <option value="DC">DC - District of Columbia</option>
-                <option value="FL">FL - Florida</option>
-                <option value="GA">GA - Georgia</option>
-                <option value="GU">GU - Guam</option>
-                <option value="HI">HI - Hawaii</option>
-                <option value="ID">ID - Idaho</option>
-                <option value="IL">IL - Illinois</option>
-                <option value="IN">IN - Indiana</option>
-                <option value="IA">IA - Iowa</option>
-                <option value="KS">KS - Kansas</option>
-                <option value="KY">KY - Kentucky</option>
-                <option value="LA">LA - Louisiana</option>
-                <option value="ME">ME - Maine</option>
-                <option value="MD">MD - Maryland</option>
-                <option value="MA">MA - Massachusetts</option>
-                <option value="MI">MI - Michigan</option>
-                <option value="MN">MN - Minnesota</option>
-                <option value="MS">MS - Mississippi</option>
-                <option value="MO">MO - Missouri</option>
-                <option value="MT">MT - Montana</option>
-                <option value="NE">NE - Nebraska</option>
-                <option value="NV">NV - Nevada</option>
-                <option value="NH">NH - New Hampshire</option>
-                <option value="NJ">NJ - New Jersey</option>
-                <option value="NM">NM - New Mexico</option>
-                <option value="NY">NY - New York</option>
-                <option value="NC">NC - North Carolina</option>
-                <option value="ND">ND - North Dakota</option>
-                <option value="MP">MP - Northern Mariana Islands</option>
-                <option value="OH">OH - Ohio</option>
-                <option value="OK">OK - Oklahoma</option>
-                <option value="OR">OR - Oregon</option>
-                <option value="PA">PA - Pennsylvania</option>
-                <option value="PR">PR - Puerto Rico</option>
-                <option value="RI">RI - Rhode Island</option>
-                <option value="SC">SC - South Carolina</option>
-                <option value="SD">SD - South Dakota</option>
-                <option value="TN">TN - Tennessee</option>
-                <option value="TX">TX - Texas</option>
-                <option value="UM">
-                    UM - United States Minor Outlying Islands
-                </option>
-                <option value="UT">UT - Utah</option>
-                <option value="VT">VT - Vermont</option>
-                <option value="VI">VI - Virgin Islands</option>
-                <option value="VA">VA - Virginia</option>
-                <option value="WA">WA - Washington</option>
-                <option value="WV">WV - West Virginia</option>
-                <option value="WI">WI - Wisconsin</option>
-                <option value="WY">WY - Wyoming</option>
-                <option value="AA">AA - Armed Forces Americas</option>
-                <option value="AE">AE - Armed Forces Africa</option>
-                <option value="AE">AE - Armed Forces Canada</option>
-                <option value="AE">AE - Armed Forces Europe</option>
-                <option value="AE">AE - Armed Forces Middle East</option>
-                <option value="AP">AP - Armed Forces Pacific</option>
-            </select>
+                <label class="usa-label" for="city">
+                    City
+                    <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                </label>
+                <input class="usa-input" id="city" name="city" required formControlName="city" />
+                @if (formErrors().city?.required) {
+                    <span class="form-error-message">City is required.</span>
+                }
 
-            <label class="usa-label" for="zip">
-                ZIP code
-                <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-            </label>
-            <input
-                class="usa-input usa-input--medium"
-                id="zip"
-                name="zip"
-                pattern="[\d]{5}(-[\d]{4})?"
-                required
-                formControlName="postalCode"
-            />
-        </fieldset>
+                <label class="usa-label" for="state">
+                    State, territory, or military post
+                    <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                </label>
+                <select class="usa-select" id="state" name="state" required formControlName="state">
+                    <option value>- Select -</option>
+                    <option value="AL">AL - Alabama</option>
+                    <option value="AK">AK - Alaska</option>
+                    <option value="AS">AS - American Samoa</option>
+                    <option value="AZ">AZ - Arizona</option>
+                    <option value="AR">AR - Arkansas</option>
+                    <option value="CA">CA - California</option>
+                    <option value="CO">CO - Colorado</option>
+                    <option value="CT">CT - Connecticut</option>
+                    <option value="DE">DE - Delaware</option>
+                    <option value="DC">DC - District of Columbia</option>
+                    <option value="FL">FL - Florida</option>
+                    <option value="GA">GA - Georgia</option>
+                    <option value="GU">GU - Guam</option>
+                    <option value="HI">HI - Hawaii</option>
+                    <option value="ID">ID - Idaho</option>
+                    <option value="IL">IL - Illinois</option>
+                    <option value="IN">IN - Indiana</option>
+                    <option value="IA">IA - Iowa</option>
+                    <option value="KS">KS - Kansas</option>
+                    <option value="KY">KY - Kentucky</option>
+                    <option value="LA">LA - Louisiana</option>
+                    <option value="ME">ME - Maine</option>
+                    <option value="MD">MD - Maryland</option>
+                    <option value="MA">MA - Massachusetts</option>
+                    <option value="MI">MI - Michigan</option>
+                    <option value="MN">MN - Minnesota</option>
+                    <option value="MS">MS - Mississippi</option>
+                    <option value="MO">MO - Missouri</option>
+                    <option value="MT">MT - Montana</option>
+                    <option value="NE">NE - Nebraska</option>
+                    <option value="NV">NV - Nevada</option>
+                    <option value="NH">NH - New Hampshire</option>
+                    <option value="NJ">NJ - New Jersey</option>
+                    <option value="NM">NM - New Mexico</option>
+                    <option value="NY">NY - New York</option>
+                    <option value="NC">NC - North Carolina</option>
+                    <option value="ND">ND - North Dakota</option>
+                    <option value="MP">MP - Northern Mariana Islands</option>
+                    <option value="OH">OH - Ohio</option>
+                    <option value="OK">OK - Oklahoma</option>
+                    <option value="OR">OR - Oregon</option>
+                    <option value="PA">PA - Pennsylvania</option>
+                    <option value="PR">PR - Puerto Rico</option>
+                    <option value="RI">RI - Rhode Island</option>
+                    <option value="SC">SC - South Carolina</option>
+                    <option value="SD">SD - South Dakota</option>
+                    <option value="TN">TN - Tennessee</option>
+                    <option value="TX">TX - Texas</option>
+                    <option value="UM">
+                        UM - United States Minor Outlying Islands
+                    </option>
+                    <option value="UT">UT - Utah</option>
+                    <option value="VT">VT - Vermont</option>
+                    <option value="VI">VI - Virgin Islands</option>
+                    <option value="VA">VA - Virginia</option>
+                    <option value="WA">WA - Washington</option>
+                    <option value="WV">WV - West Virginia</option>
+                    <option value="WI">WI - Wisconsin</option>
+                    <option value="WY">WY - Wyoming</option>
+                    <option value="AA">AA - Armed Forces Americas</option>
+                    <option value="AE">AE - Armed Forces Africa</option>
+                    <option value="AE">AE - Armed Forces Canada</option>
+                    <option value="AE">AE - Armed Forces Europe</option>
+                    <option value="AE">AE - Armed Forces Middle East</option>
+                    <option value="AP">AP - Armed Forces Pacific</option>
+                </select>
+                @if (formErrors().state?.required) {
+                    <span class="form-error-message">State is required.</span>
+                }
 
-        <button class="usa-button usa-button--big" type="button" (click)="validateAddress()">
-            Validate
-        </button>
-    </form>
-</div>
+                <label class="usa-label" for="zip">
+                    ZIP code
+                    <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                </label>
+                <input
+                    class="usa-input usa-input--medium"
+                    id="zip"
+                    name="zip"
+                    pattern="[\d]{5}(-[\d]{4})?"
+                    required
+                    formControlName="postalCode"
+                />
+                @if (formErrors().postalCode?.required) {
+                    <span class="form-error-message">ZIP code is required.</span>
+                }
+                @if (formErrors().postalCode?.pattern) {
+                    <span class="form-error-message">ZIP code must be either 5 digits or 9 digits including the plus-4 code.</span>
+                }
+            </fieldset>
 
-<div class="vertical-divider"></div>
+            @if (!readyToSubmit()) {
+                <button class="usa-button usa-button--big" type="button" (click)="validateAddress()">
+                    Validate
+                </button>
+            } @else {
+                <button class="usa-button usa-button--big" type="button" (click)="submit()">
+                    Submit Application
+                </button>
+            }
+        </form>
+    </div>
+
+    <div class="vertical-divider"></div>
+}
 
 <div class="right-panel">
-    @switch (addressMatchState()) {
-        @case (AddressMatchState.Confirmed) {
-            <app-alert-confirmed 
-                [enteredAddress]="this.addressForm.getRawValue()"
-                [addressCandidate]="addressCandidate()!"
-                (acceptStandardized)="acceptStandardized()"
-            />
-        }
+    @if (showValidationTroubleWarning()) {
+        <div class="usa-alert usa-alert--warning margin-bottom-2">
+            <div class="usa-alert__body">
+                <!-- <h4 class="usa-alert__heading">Address needs correction</h4> -->
+                <p class="usa-alert__text">
+                    We're having trouble validating the address you are submitting.
+                    On the next attempt, we will accept you address as submitted,
+                    but we cannot guarantee USPS delivery.
+                </p>
+                <p>
+                    You may receive further
+                    communication from us to confirm your mailing address.
+                </p>
+            </div>
+        </div>
+    }
 
-        @case (AddressMatchState.NotConfirmed) {
-            <app-alert-not-confirmed />
-        }
+    @if (submitted()) {
+        <div class="usa-alert usa-alert--success usa-alert--no-icon">
+            <div class="usa-alert__body">
+                <h4 class="usa-alert__heading">Application submitted</h4>
+                <p class="usa-alert__text">
+                    Thank you for submitting your application!
+                </p>
+            </div>
+        </div>
+    } @else {
+        @switch (addressMatchState()) {
+            @case (AddressMatchState.Confirmed) {
+                <app-alert-confirmed
+                    [enteredAddress]="this.addressForm.getRawValue()"
+                    [addressCandidate]="addressCandidate()!"
+                    (acceptStandardized)="acceptStandardized()"
+                />
+            }
 
-        @case (AddressMatchState.SecondaryUnrecognized) {
-            <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
-        }
+            @case (AddressMatchState.NotConfirmed) {
+                <app-alert-not-confirmed />
+            }
 
-        @case (AddressMatchState.SecondaryMissing) {
-            <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+            @case (AddressMatchState.SecondaryUnrecognized) {
+                <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+            }
+
+            @case (AddressMatchState.SecondaryMissing) {
+                <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+            }
         }
     }
 </div>
