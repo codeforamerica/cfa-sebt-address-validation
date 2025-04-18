@@ -4,5 +4,5 @@
 
 export const environment = {
     production: false,
-    smartyKey: "<SMARTY_KEY_GOES_HERE>"
+    smartyKey: import.meta.env.NG_APP_SMARTY_API_KEY
 };

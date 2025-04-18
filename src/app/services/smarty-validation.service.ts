@@ -4,6 +4,7 @@ import {
     usStreet as SmartyUsStreet,
 } from 'smartystreets-javascript-sdk';
 import { Address } from '../models/address';
+import { environment } from '../../environments/environment';
 
 type UsStreetApiClient = SmartyCore.Client<
     SmartyUsStreet.Lookup | SmartyCore.Batch<SmartyUsStreet.Lookup>,
@@ -17,7 +18,7 @@ export class SmartyValidationService {
     private readonly client: UsStreetApiClient;
 
     constructor() {
-        const key = '<SMARTY_KEY_GOES_HERE>'
+        const key = environment.smartyKey;
         const credentials = new SmartyCore.SharedCredentials(key);
         const clientBuilder = new SmartyCore.ClientBuilder(
             credentials

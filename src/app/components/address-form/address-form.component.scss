@@ -1,4 +1,6 @@
-@forward "usa-layout-grid";
+@forward "usa-layout-grid" with (
+    $theme-show-notifications: false
+);
 
 :host {
     display: flex;

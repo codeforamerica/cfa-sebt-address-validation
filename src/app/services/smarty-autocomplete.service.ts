@@ -3,6 +3,7 @@ import {
     core as SmartyCore,
     usAutocompletePro as SmartyUsAutocompletePro,
 } from 'smartystreets-javascript-sdk';
+import { environment } from '../../environments/environment';
 
 type UsAutocompleteProClient = SmartyCore.Client<
     SmartyUsAutocompletePro.Lookup,
@@ -16,7 +17,7 @@ export class SmartyAutocompleteService {
     private readonly client: UsAutocompleteProClient;
 
     constructor() {
-        const key = '<SMARTY_KEY_GOES_HERE>'
+        const key = environment.smartyKey;
         const credentials = new SmartyCore.SharedCredentials(key);
         const clientBuilder = new SmartyCore.ClientBuilder(
             credentials
