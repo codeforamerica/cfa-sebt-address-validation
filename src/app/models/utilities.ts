@@ -1,12 +1,12 @@
 import { Address } from './address';
-import { DpvFootnote, SmartyFootnote } from './enums';
-import { 
+import { DpvFootnote, Footnote } from './enums';
+import {
     usStreet as SmartyUsStreet,
     usAutocompletePro as SmartyUsAutocomplete
 } from 'smartystreets-javascript-sdk';
 
 export function parseDpvFootnotes(dpvFootnotes: string): DpvFootnote[] {
-    if (!dpvFootnotes) { 
+    if (!dpvFootnotes) {
         return [];
     }
 
@@ -23,8 +23,8 @@ export function parseDpvFootnotes(dpvFootnotes: string): DpvFootnote[] {
     return pairs.map((s) => s as DpvFootnote);
 }
 
-export function parseSmartyFootnotes(text: string): SmartyFootnote[] {
-    if (!text) { 
+export function parseFootnotes(text: string): Footnote[] {
+    if (!text) {
         return [];
     }
 
@@ -37,7 +37,7 @@ export function parseSmartyFootnotes(text: string): SmartyFootnote[] {
 
         if (char === delimiter) {
             if (currentSegment) {
-                segments.push(`${currentSegment}#`);
+                segments.push(currentSegment);
             }
             currentSegment = ''; //reset the segment
         } else {
@@ -49,7 +49,7 @@ export function parseSmartyFootnotes(text: string): SmartyFootnote[] {
         segments.push(currentSegment); // Add the last segment, if any
     }
 
-    return segments.map((s) => s as SmartyFootnote);
+    return segments.map((s) => s as Footnote);
 }
 
 export function standardizeAddress(candidate: SmartyUsStreet.Candidate): Address {

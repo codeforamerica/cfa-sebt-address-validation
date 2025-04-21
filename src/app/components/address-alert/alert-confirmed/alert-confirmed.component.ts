@@ -1,8 +1,8 @@
 import { Component, computed, input, output } from '@angular/core';
 import { usStreet as SmartyUsStreet } from 'smartystreets-javascript-sdk';
 import { Address } from '../../../models/address';
-import { parseSmartyFootnotes } from '../../../models/utilities';
-import { SmartyFootnote, SmartyFootnoteDebugDescriptions } from '../../../models/enums';
+import { parseFootnotes } from '../../../models/utilities';
+import { Footnote, SmartyFootnoteDebugDescriptions } from '../../../models/enums';
 
 @Component({
     selector: 'app-alert-confirmed',
@@ -18,12 +18,12 @@ export class AlertConfirmedComponent {
     readonly warnings = computed<string[]>(() => {
         const candidate = this.addressCandidate();
 
-        return parseSmartyFootnotes(candidate.analysis.footnotes)
+        return parseFootnotes(candidate.analysis.footnotes)
             .map((f) => {
                 return SmartyFootnoteDebugDescriptions[f]; // TODO.JB - some of these are verbose and not plain language.
                 // switch (f) {
                 //     case SmartyFootnote.CorrectedZipCode:
-                        
+
                 //     default:
                 //         return '';
                 // }

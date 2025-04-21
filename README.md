@@ -1,59 +1,25 @@
-# CfaDcAddrValidationForm
+# Address Validation Demo Application
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.1.
+## Introduction
+When collecting an address from a client in a web form, an ideal approach is to use an autocomplete/typeahead user interface element. This involves using a form component similar to a combo box. As people type their address into the combo box, a connected web service provides suggested addresses as they type, which are displayed for selection. This type of user interface allows the client to choose from a list of suggested addresses that are known to be valid, reducing the likelihood of errors introduced by typos or other data entry mistakes.
 
-## Development server
+This demo application implements this user experience with [Angular](https://angular.dev/) and [TypeScript](https://www.typescriptlang.org/), using the [Smarty](https://www.smarty.com/) APIs for autocomplete and address validation. When using the autocomplete feature, if city, state, and/or zip have not been specified, the suggestions include only the DC/MD/VA area by default. This can be modified in [smarty-autocomplete.service.ts](/src/app/services/smarty-autocomplete.service.ts?plain=1#L37). You can also change the specified options on the request to "prefer" instead of "includeOnly" if you want the suggestions to have a preference for the specified city/state or zip but still include options in other areas.
+
+TypeScript enumerations are defined for [DpvConfirmation](/src/app/models/enums.ts?plain=1#L1), [DpvFootnote](/src/app/models/enums.ts?plain=1#L15), and [SmartyFootnote](/src/app/models/enums.ts?plain=1#L57). Utility functions are defined for parsing the [DPV footnotes](/src/app/models/utilities.ts?plain=1#L8) and [footnotes](/src/app/models/utilities.ts?plain=1#L26).
+
+## Running the Demo Application
+> This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.1.
 
 To start a local development server, run:
 
 ```bash
-ng serve
+npm start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
 ## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+1. **TODO: Link to best-practice written guidance**
+2. [Smarty US Autocomplete Pro API](https://www.smarty.com/docs/cloud/us-autocomplete-pro-api)
+3. [Smarty US Street API](https://www.smarty.com/docs/cloud/us-street-api)
+4. [U.S. Web Designg System (USWDS)](https://designsystem.digital.gov/)

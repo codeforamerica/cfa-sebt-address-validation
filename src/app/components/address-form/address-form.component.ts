@@ -22,10 +22,10 @@ import {
     usStreet as SmartyUsStreet,
 } from 'smartystreets-javascript-sdk';
 import {
-    AddressMatchState,
+    DpvConfirmation,
     DpvFootnote,
     DpvFootnoteNames,
-    SmartyFootnote,
+    Footnote,
     SmartyFootnoteDebugDescriptions,
 } from '../../models/enums';
 import { isPlatformBrowser } from '@angular/common';
@@ -34,7 +34,7 @@ import { AlertNotConfirmedComponent } from '../address-alert/alert-not-confirmed
 import { AlertNeedsCorrectionComponent } from '../address-alert/alert-needs-correction/alert-needs-correction.component';
 import {
     parseDpvFootnotes,
-    parseSmartyFootnotes,
+    parseFootnotes,
     standardizeAddress,
 } from '../../models/utilities';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -68,7 +68,7 @@ export class AddressFormComponent {
     private readonly fb = inject(FormBuilder);
     private readonly smartyValidationService = inject(SmartyValidationService);
 
-    AddressMatchState = AddressMatchState;
+    AddressMatchState = DpvConfirmation;
 
     readonly useAutocomplete = signal<boolean>(false);
     readonly autocompleteSelection = signal<string | null>(null);
@@ -86,10 +86,10 @@ export class AddressFormComponent {
     readonly formErrors = signal<
         Partial<Pick<ValidationErrors, keyof Address>>
     >({});
-    readonly addressMatchState = signal<AddressMatchState | null>(null);
+    readonly addressMatchState = signal<DpvConfirmation | null>(null);
     readonly addressCandidate = signal<SmartyUsStreet.Candidate | null>(null);
     readonly dpvFootnotes = signal<DpvFootnote[]>([]);
-    readonly smartyFootnotes = signal<SmartyFootnote[]>([]);
+    readonly smartyFootnotes = signal<Footnote[]>([]);
 
     readonly validationAttemptCount = signal<number>(0);
     readonly readyToSubmit = signal<boolean>(false);
@@ -161,7 +161,7 @@ export class AddressFormComponent {
         this.handleResult(candidates[0]);
 
         const confirmedNoWarnings =
-            this.addressMatchState() === AddressMatchState.Confirmed &&
+            this.addressMatchState() === DpvConfirmation.Confirmed &&
             this.smartyFootnotes().length === 0;
 
         if (confirmedNoWarnings || this.validationAttemptCount() >= 3) {
@@ -193,7 +193,7 @@ export class AddressFormComponent {
         const dpvFootnotes = parseDpvFootnotes(
             candidate.analysis.dpvFootnotes ?? []
         );
-        const smartyFootnotes = parseSmartyFootnotes(
+        const smartyFootnotes = parseFootnotes(
             candidate.analysis.footnotes ?? []
         );
 
@@ -204,7 +204,7 @@ export class AddressFormComponent {
         console.log(smartyFootnotes.map((n) => SmartyFootnoteDebugDescriptions[n]));
 
         const addressMatchState = (candidate.analysis.dpvMatchCode ??
-            'N') as AddressMatchState;
+            'N') as DpvConfirmation;
         this.addressMatchState.set(addressMatchState);
     }
 
