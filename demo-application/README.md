@@ -31,4 +31,4 @@ Once the server is running, open your browser and navigate to `http://localhost:
 1. **TODO: Link to best-practice written guidance**
 2. [Smarty US Autocomplete Pro API](https://www.smarty.com/docs/cloud/us-autocomplete-pro-api)
 3. [Smarty US Street API](https://www.smarty.com/docs/cloud/us-street-api)
-4. [U.S. Web Designg System (USWDS)](https://designsystem.digital.gov/)
+4. [U.S. Web Design System (USWDS)](https://designsystem.digital.gov/)
