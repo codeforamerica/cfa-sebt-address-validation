@@ -28,7 +28,6 @@ import {
     Footnote,
     SmartyFootnoteDebugDescriptions,
 } from '../../models/enums';
-import { isPlatformBrowser } from '@angular/common';
 import { AlertConfirmedComponent } from '../address-alert/alert-confirmed/alert-confirmed.component';
 import { AlertNotConfirmedComponent } from '../address-alert/alert-not-confirmed/alert-not-confirmed.component';
 import { AlertNeedsCorrectionComponent } from '../address-alert/alert-needs-correction/alert-needs-correction.component';
@@ -37,7 +36,7 @@ import {
     parseFootnotes,
     standardizeAddress,
 } from '../../models/utilities';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Address } from '../../models/address';
 import { SmartyValidationService } from '../../services/smarty-validation.service';
 import { AddressAutocompleteComponent, AddressSelectedEvent, SuggestionFilters } from '../address-autocomplete/address-autocomplete.component';
@@ -70,7 +69,7 @@ export class AddressFormComponent {
 
     AddressMatchState = DpvConfirmation;
 
-    readonly useAutocomplete = signal<boolean>(false);
+    readonly useAutocomplete = signal<boolean>(true);
     readonly autocompleteSelection = signal<string | null>(null);
 
     readonly addressForm: FormGroup<AddressForm> = this.fb.group({
@@ -91,6 +90,19 @@ export class AddressFormComponent {
     readonly dpvFootnotes = signal<DpvFootnote[]>([]);
     readonly smartyFootnotes = signal<Footnote[]>([]);
 
+    readonly isDeliverable = computed<boolean>(() => {
+        const addressMatchState = this.addressMatchState();
+        const addressCandidate = this.addressCandidate();
+
+        const parsedDpvFootnotes = parseDpvFootnotes(addressCandidate?.analysis.dpvFootnotes);
+        const receivesUspsDelivery = !parsedDpvFootnotes
+            .includes(DpvFootnote.ValidAddressThatDoesNotRecieveUspsDelivery)
+
+        return addressMatchState === DpvConfirmation.Confirmed &&
+            addressCandidate?.analysis.vacant === "N" &&
+            addressCandidate?.analysis.noStat === "N" &&
+            receivesUspsDelivery;
+    });
     readonly validationAttemptCount = signal<number>(0);
     readonly readyToSubmit = signal<boolean>(false);
     readonly submitted = signal<boolean>(false);
@@ -100,8 +112,6 @@ export class AddressFormComponent {
     );
 
     constructor() {
-        this.wireUpSessionStorage();
-
         merge(this.addressForm.statusChanges, this.addressForm.valueChanges)
             .pipe(takeUntilDestroyed())
             .pipe(tap(() => this.readyToSubmit.set(false)))
@@ -160,12 +170,10 @@ export class AddressFormComponent {
 
         this.handleResult(candidates[0]);
 
-        const confirmedNoWarnings =
-            this.addressMatchState() === DpvConfirmation.Confirmed &&
-            this.smartyFootnotes().length === 0;
-
-        if (confirmedNoWarnings || this.validationAttemptCount() >= 3) {
+        if (this.isDeliverable() || this.validationAttemptCount() >= 3) {
             this.readyToSubmit.set(true);
+        } else {
+            this.readyToSubmit.set(false);
         }
     }
 
@@ -184,7 +192,7 @@ export class AddressFormComponent {
 
         this.addressForm.patchValue(standardizedAddress);
 
-        this.readyToSubmit.set(true);
+        this.readyToSubmit.set(this.isDeliverable());
     }
 
     private handleResult(candidate: SmartyUsStreet.Candidate) {
@@ -223,32 +231,5 @@ export class AddressFormComponent {
         };
 
         this.formErrors.set(result);
-    }
-
-    private wireUpSessionStorage() {
-        if (!isPlatformBrowser(this.platformId)) {
-            return;
-        }
-
-        const useAutocompleteStorageKey = 'use-autocomplete';
-
-        const savedUseAutocompleteJson = sessionStorage.getItem(
-            useAutocompleteStorageKey
-        );
-        if (
-            typeof savedUseAutocompleteJson !== 'undefined' &&
-            savedUseAutocompleteJson !== null
-        ) {
-            this.useAutocomplete.set(JSON.parse(savedUseAutocompleteJson));
-        }
-
-        toObservable(this.useAutocomplete)
-            .pipe(takeUntilDestroyed())
-            .subscribe((value) => {
-                sessionStorage.setItem(
-                    useAutocompleteStorageKey,
-                    JSON.stringify(value)
-                );
-            });
     }
 }

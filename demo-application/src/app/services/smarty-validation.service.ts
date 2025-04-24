@@ -35,7 +35,6 @@ export class SmartyValidationService {
         lookup.zipCode = address.postalCode!;
         lookup.maxCandidates = maxCandidates;
         lookup.match = 'enhanced';
-        // lookup.match = 'invalid';
 
         await this.client.send(lookup);
 

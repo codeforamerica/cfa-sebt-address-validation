@@ -1,4 +1,4 @@
-<form class="usa-form usa-form--large" [formGroup]="addressForm">
+<form class="usa-form usa-form--large" [formGroup]="addressForm" data-lpignore="true">
     <fieldset class="usa-fieldset">
         <div class="grid-row">
             <div class="grid-col-auto">
@@ -12,9 +12,9 @@
             </div>
         </div>
 
-        <div class="grid-row">
+        <div class="grid-row grid-gap">
             @if (!submitted()) {
-            <div class="tablet:grid-col-5 left-panel">
+            <div class="desktop:grid-col-5">
                 <div class="usa-checkbox">
                     <input class="usa-checkbox__input" id="check-use-autocomplete" type="checkbox"
                         [(ngModel)]="useAutocomplete" [ngModelOptions]="{ standalone: true }" />
@@ -160,12 +160,9 @@
                 }
                 <!-- </form> -->
             </div>
-
-            <!-- <div class="grid-col-1 vertical-divider"></div> -->
             }
-            <div class="tablet:grid-col-1"></div>
 
-            <div class="tablet:grid-col-5 right-panel">
+            <div class="desktop:grid-col-5 right-panel">
                 @if (showValidationTroubleWarning()) {
                     <div class="usa-alert usa-alert--warning margin-bottom-2">
                         <div class="usa-alert__body">

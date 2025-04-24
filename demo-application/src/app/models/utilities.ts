@@ -5,7 +5,7 @@ import {
     usAutocompletePro as SmartyUsAutocomplete
 } from 'smartystreets-javascript-sdk';
 
-export function parseDpvFootnotes(dpvFootnotes: string): DpvFootnote[] {
+export function parseDpvFootnotes(dpvFootnotes?: string): DpvFootnote[] {
     if (!dpvFootnotes) {
         return [];
     }
