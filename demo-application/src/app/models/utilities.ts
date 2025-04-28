@@ -83,6 +83,26 @@ export function standardizeAddress(candidate: SmartyUsStreet.Candidate): Address
     };
 }
 
+export function toAutocompleteSecondarySelected(suggestion: SmartyUsAutocomplete.Suggestion): string {
+    const streetAndEntries = `${suggestion.streetLine} ${suggestion.secondary} (${suggestion.entries})`;
+
+    if (!suggestion.secondary) {
+        throw new Error('Tried formatting selected secondary for non-secondary option!')
+    }
+
+    return `${streetAndEntries}, ${suggestion.city}, ${suggestion.state} ${suggestion.zipcode}`;
+}
+
 export function toAutocompleteOption(suggestion: SmartyUsAutocomplete.Suggestion): string {
-    return `${suggestion.streetLine}, ${suggestion.city}, ${suggestion.state} ${suggestion.zipcode}`;
+    let streetAndSecondary = suggestion.streetLine;
+
+    if (suggestion.secondary) {
+        if (suggestion.entries > 1) {
+            streetAndSecondary += ` ${suggestion.secondary} (${suggestion.entries} options)`;
+        } else {
+            streetAndSecondary += ` ${suggestion.secondary}`;
+        }
+    }
+
+    return `${streetAndSecondary}, ${suggestion.city}, ${suggestion.state} ${suggestion.zipcode}`;
 }

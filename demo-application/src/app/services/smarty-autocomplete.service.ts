@@ -4,6 +4,7 @@ import {
     usAutocompletePro as SmartyUsAutocompletePro,
 } from 'smartystreets-javascript-sdk';
 import { environment } from '../../environments/environment';
+import { toAutocompleteSecondarySelected } from '../models/utilities';
 
 type UsAutocompleteProClient = SmartyCore.Client<
     SmartyUsAutocompletePro.Lookup,
@@ -29,12 +30,18 @@ export class SmartyAutocompleteService {
         text: string,
         preferCity: string | null = null,
         preferState: string | null = null,
-        preferPostalCode: string | null = null
+        preferPostalCode: string | null = null,
+        secondarySelected: SmartyUsAutocompletePro.Suggestion | null = null
     ): Promise<SmartyUsAutocompletePro.Suggestion[]> {
         const lookup = new SmartyUsAutocompletePro.Lookup(text);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (lookup as any).source = 'postal';
+
         preferCity = preferCity || 'Washington, DC';
-        const preferredStates = preferState ? [preferState] : ['DC', 'MD', 'VA'];
+        const preferredStates = preferState
+            ? [preferState]
+            : ['DC', 'MD', 'VA'];
 
         if (preferPostalCode) {
             // lookup.preferZIPCodes = [preferPostalCode];
@@ -45,6 +52,30 @@ export class SmartyAutocompleteService {
             // lookup.preferCities = [preferCity];
             // lookup.preferStates = preferredStates;
         }
+
+        if (secondarySelected) {
+            lookup.selected =
+                toAutocompleteSecondarySelected(secondarySelected);
+        }
+
+        await this.client.send(lookup);
+
+        return lookup.result;
+    }
+
+    async getSecondarySuggestions(
+        secondarySelected: SmartyUsAutocompletePro.Suggestion
+    ): Promise<SmartyUsAutocompletePro.Suggestion[]> {
+        const lookup = new SmartyUsAutocompletePro.Lookup(
+            secondarySelected.streetLine
+        );
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (lookup as any).source = 'postal';
+
+        lookup.includeOnlyZIPCodes = [secondarySelected.zipcode];
+
+        lookup.selected = toAutocompleteSecondarySelected(secondarySelected);
 
         await this.client.send(lookup);
 

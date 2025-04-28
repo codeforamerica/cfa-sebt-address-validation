@@ -21,25 +21,25 @@
                     <label class="usa-checkbox__label" for="check-use-autocomplete">Use Autocomplete</label>
                 </div>
 
-                @if (!useAutocomplete()) {
-                    <label class="usa-label" for="mailing-address-1">
-                        Street address
-                        <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-                    </label>
-                    <input class="usa-input" id="mailing-address-1" name="mailing-address-1" required
-                        formControlName="streetAddress" />
-                    @if (formErrors().streetAddress?.required) {
-                        <span class="form-error-message">Street address is required.</span>
-                    }
-                } @else {
+                @if (useAutocomplete()) {
                     <label class="usa-label" for="street-address-combo-box">
-                        Street address
+                        Search for your address
                         <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
                     </label>
                     <app-address-autocomplete
                         [enableTypeahead]="useAutocomplete()"
                         [suggestionFilters]="suggestionFilters"
                         (suggestionSelected)="updateFormFromSuggestion($event)" />
+                }
+
+                <label class="usa-label" for="mailing-address-1">
+                    Street address
+                    <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                </label>
+                <input class="usa-input" id="mailing-address-1" name="mailing-address-1" required
+                    formControlName="streetAddress" />
+                @if (formErrors().streetAddress?.required) {
+                    <span class="form-error-message">Street address is required.</span>
                 }
 
                 <label class="usa-label" for="mailing-address-2">
@@ -190,24 +190,26 @@
                         </div>
                     </div>
                 } @else {
-                    @switch (addressMatchState()) {
-                        @case (AddressMatchState.Confirmed) {
-                            <app-alert-confirmed [enteredAddress]="this.addressForm.getRawValue()"
-                                [addressCandidate]="addressCandidate()!" (acceptStandardized)="acceptStandardized()" />
-                        }
+                    <div #alertContainer>
+                        @switch (addressMatchState()) {
+                            @case (AddressMatchState.Confirmed) {
+                                <app-alert-confirmed [enteredAddress]="this.addressForm.getRawValue()"
+                                    [addressCandidate]="addressCandidate()!" (acceptStandardized)="acceptStandardized()" />
+                            }
 
-                        @case (AddressMatchState.NotConfirmed) {
-                            <app-alert-not-confirmed />
-                        }
+                            @case (AddressMatchState.NotConfirmed) {
+                                <app-alert-not-confirmed />
+                            }
 
-                        @case (AddressMatchState.SecondaryUnrecognized) {
-                            <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
-                        }
+                            @case (AddressMatchState.SecondaryUnrecognized) {
+                                <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+                            }
 
-                        @case (AddressMatchState.SecondaryMissing) {
-                            <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+                            @case (AddressMatchState.SecondaryMissing) {
+                                <app-alert-needs-correction [dpvFootnotes]="dpvFootnotes()" />
+                            }
                         }
-                    }
+                    </div>
                 }
             </div>
         </div>

@@ -23,14 +23,15 @@ import { Address } from '../../models/address';
 
 import {
     usAutocompletePro as SmartyUsAutocomplete,
+    usAutocompletePro,
 } from 'smartystreets-javascript-sdk';
 import { SmartyAutocompleteService } from '../../services/smarty-autocomplete.service';
 import { isPlatformBrowser } from '@angular/common';
 
-export type AddressSelectedEvent = Pick<
-    Address,
-    'streetAddress' | 'city' | 'state' | 'postalCode'
->;
+// export type AddressSelectedEvent = Pick<
+//     Address,
+//     'streetAddress' | 'city' | 'state' | 'postalCode'
+// >;
 
 export type SuggestionFilters = Pick<Address, 'city' | 'state' | 'postalCode'>;
 
@@ -53,10 +54,13 @@ export class AddressAutocompleteComponent {
     public readonly enableTypeahead = input<boolean>(true);
     public readonly suggestionFilters = input<SuggestionFilters>();
 
-    readonly suggestionSelected = output<AddressSelectedEvent>();
-
+    readonly suggestionSelected = output<Address>();
     readonly comboBoxText = signal<string>('');
-    readonly autocompleteSelection = signal<string | null>(null);
+    readonly autocompleteSuggestions = signal<usAutocompletePro.Suggestion[]>(
+        []
+    );
+    readonly autocompleteSelection =
+        signal<usAutocompletePro.Suggestion | null>(null);
 
     private readonly streetAddressComboBox$ = toObservable(
         this.streetAddressComboBox
@@ -65,41 +69,93 @@ export class AddressAutocompleteComponent {
 
     constructor() {
         toObservable(this.comboBoxText)
-            .pipe(takeUntilDestroyed())
-            .pipe(filter((v) => !!v && this.enableTypeahead()))
-            .pipe(debounceTime(500))
-            .subscribe(async () => await this.updateAutocompleteSuggestions());
+            .pipe(
+                takeUntilDestroyed(),
+                filter(() => this.enableTypeahead()),
+                debounceTime(500),
+                distinctUntilChanged()
+            )
+            .subscribe(async (value) => {
+                const match = this.autocompleteSuggestions().filter(
+                    (s) => toAutocompleteOption(s) === value
+                );
+
+                if (match.length) {
+                    await this.setAutocompleteSuggestionList([match[0]], true);
+                    // const nativeInput = document.getElementById(
+                    //     'street-address-combo-box'
+                    // ) as HTMLInputElement;
+                    // nativeInput.value = match[0].streetLine;
+                    return;
+                }
+
+                await this.updateAutocompleteSuggestions();
+            });
 
         if (isPlatformBrowser(this.platformId)) {
-            combineLatest([this.enableTypeahead$, this.streetAddressComboBox$.pipe(map(r => r?.nativeElement))])
-                .pipe(takeUntilDestroyed())
-                .pipe(distinctUntilChanged())
-                .pipe(filter(([enableTypeahead, nativeElement]) => enableTypeahead && !!nativeElement))
-                .subscribe(async ([, nativeElement]) => {
-                    // console.log("Enhancing select as combo box", nativeElement);
-                    const comboBox = (
-                        await import('@uswds/uswds/js/usa-combo-box')
-                    ).default;
-                    comboBox.enhanceComboBox(nativeElement!);
-                });
+            combineLatest([
+                this.enableTypeahead$,
+                this.streetAddressComboBox$.pipe(map((r) => r?.nativeElement)),
+            ])
+                .pipe(
+                    takeUntilDestroyed(),
+                    distinctUntilChanged(),
+                    filter(
+                        ([enableTypeahead, nativeElement]) =>
+                            enableTypeahead && !!nativeElement
+                    )
+                )
+                .subscribe(async () => await this.enhanceComboBox());
         }
     }
 
     @HostListener('keyup', ['$event'])
-    onKeyup(event: KeyboardEvent) {
-        const target = event.target as HTMLInputElement;
+    @HostListener('change', ['$event'])
+    async onChange(event: InputEvent | KeyboardEvent) {
+        const targetElement = event.target as Element | null;
 
-        if (target.id !== 'street-address-combo-box') {
+        if (targetElement?.id === 'street-address-combo-box') {
+            const inputTarget = targetElement as HTMLInputElement;
+            this.comboBoxText.set(inputTarget.value);
             return;
         }
 
-        this.comboBoxText.set(target.value);
+        if (
+            targetElement?.classList.contains('usa-combo-box__select') &&
+            Array.from(targetElement.parentElement!.children).some(
+                (e) => e.id === 'street-address-combo-box'
+            )
+        ) {
+            const selectTarget = targetElement as HTMLSelectElement;
+            if (selectTarget.value) {
+                await this.handleItemSelected(JSON.parse(selectTarget.value));
+            }
+        }
+    }
+
+    private async enhanceComboBox(displayList: boolean = false) {
+        const nativeElement = this.streetAddressComboBox()?.nativeElement;
+
+        if (!nativeElement) {
+            console.warn(
+                'Could not get native element for streetAddressComboBox'
+            );
+            return;
+        }
+
+        const comboBox = (await import('@uswds/uswds/js/usa-combo-box'))
+            .default;
+        comboBox.enhanceComboBox(nativeElement!);
+
+        if (displayList) {
+            comboBox.displayList(nativeElement!);
+        }
     }
 
     private async updateAutocompleteSuggestions() {
         const text = this.comboBoxText();
 
-        if (!text) {
+        if (!text || text.length < 4) {
             await this.setAutocompleteSuggestionList([]);
             return;
         }
@@ -117,45 +173,59 @@ export class AddressAutocompleteComponent {
     }
 
     private async setAutocompleteSuggestionList(
-        suggestions: SmartyUsAutocomplete.Suggestion[]
+        suggestions: SmartyUsAutocomplete.Suggestion[],
+        maintainSelection: boolean = false
     ) {
-        const wrapperElem =
-            this.streetAddressComboBox()?.nativeElement.parentElement;
+        this.autocompleteSuggestions.set(suggestions);
+
+        const selectElem = this.streetAddressComboBox()!.nativeElement;
+        const wrapperElem = selectElem.parentElement;
 
         if (!wrapperElem) {
             console.warn('Could not find combo box wrapper element!');
             return;
         }
 
-        this.autocompleteSelection.set(null);
-
-        const comboBoxList = wrapperElem.querySelector(
-            '.usa-combo-box__list'
-        ) as HTMLUListElement;
+        if (!maintainSelection) {
+            this.autocompleteSelection.set(null);
+        }
 
         // Clear existing items
-        comboBoxList.innerHTML = '';
+        selectElem.innerHTML = '';
 
         suggestions.forEach((item) => {
-            const listItem = document.createElement('li');
-            listItem.classList.add('usa-combo-box__list-option');
-            listItem.textContent = toAutocompleteOption(item);
-            listItem.addEventListener('click', () => {
-                this.suggestionSelected.emit({
-                    streetAddress: item.streetLine,
-                    city: item.city,
-                    state: item.state,
-                    postalCode: item.zipcode,
-                });
+            const autocompleteOption = toAutocompleteOption(item);
 
-                this.autocompleteSelection.set(item.streetLine);
-            });
-            comboBoxList.appendChild(listItem);
+            const selectOption = document.createElement('option');
+            selectOption.value = JSON.stringify(item);
+            selectOption.innerHTML = autocompleteOption;
+
+            selectElem.appendChild(selectOption);
         });
 
-        const comboBox = (
-            await import('@uswds/uswds/js/usa-combo-box')
-        ).default;
-        comboBox.enhanceComboBox(wrapperElem);
+        const shouldOpenComboBox =
+            !maintainSelection &&
+            !this.autocompleteSelection() &&
+            !!suggestions.length;
+        await this.enhanceComboBox(shouldOpenComboBox);
+    }
+
+    private async handleItemSelected(item: usAutocompletePro.Suggestion) {
+        if (item.secondary && item.entries > 1) {
+            const secondarySuggestions = await this.smartyAutocompleteService
+                .getSecondarySuggestions(item);
+
+            this.setAutocompleteSuggestionList(secondarySuggestions);
+        }
+
+        this.autocompleteSelection.set(item);
+
+        this.suggestionSelected.emit({
+            streetAddress: item.streetLine,
+            unitAptNumber: item.secondary,
+            city: item.city,
+            state: item.state,
+            postalCode: item.zipcode,
+        });
     }
 }

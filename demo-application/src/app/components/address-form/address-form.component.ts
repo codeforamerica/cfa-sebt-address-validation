@@ -1,9 +1,12 @@
 import {
+    afterNextRender,
+    afterRender,
     Component,
     computed,
+    ElementRef,
     inject,
-    PLATFORM_ID,
     signal,
+    viewChild,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -39,7 +42,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Address } from '../../models/address';
 import { SmartyValidationService } from '../../services/smarty-validation.service';
-import { AddressAutocompleteComponent, AddressSelectedEvent, SuggestionFilters } from '../address-autocomplete/address-autocomplete.component';
+import { AddressAutocompleteComponent, SuggestionFilters } from '../address-autocomplete/address-autocomplete.component';
 
 type AddressForm = {
     streetAddress: FormControl<string>;
@@ -63,13 +66,13 @@ type AddressForm = {
     styleUrl: './address-form.component.scss',
 })
 export class AddressFormComponent {
-    private readonly platformId = inject(PLATFORM_ID);
     private readonly fb = inject(FormBuilder);
     private readonly smartyValidationService = inject(SmartyValidationService);
+    private readonly alertContainer = viewChild<ElementRef<HTMLDivElement>>('alertContainer');
 
     AddressMatchState = DpvConfirmation;
 
-    readonly useAutocomplete = signal<boolean>(true);
+    readonly useAutocomplete = signal<boolean>(false);
     readonly autocompleteSelection = signal<string | null>(null);
 
     readonly addressForm: FormGroup<AddressForm> = this.fb.group({
@@ -116,6 +119,21 @@ export class AddressFormComponent {
             .pipe(takeUntilDestroyed())
             .pipe(tap(() => this.readyToSubmit.set(false)))
             .subscribe(() => this.updateFormErrors());
+
+        afterNextRender(() => {
+            // Hack for USWDS combobox initialization to be ready
+            this.useAutocomplete.set(true)
+        });
+
+        afterRender(() => {
+            if (!this.submitted() && this.addressMatchState()) {
+                const element = this.alertContainer()?.nativeElement;
+                console.log({ element });
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+            }
+        });
     }
 
     get suggestionFilters(): SuggestionFilters {
@@ -126,9 +144,10 @@ export class AddressFormComponent {
         }
     }
 
-    updateFormFromSuggestion(item: AddressSelectedEvent) {
+    updateFormFromSuggestion(item: Address) {
         this.addressForm.patchValue({
             streetAddress: item.streetAddress,
+            unitAptNumber: item.unitAptNumber,
             city: item.city,
             state: item.state,
             postalCode: item.postalCode,
