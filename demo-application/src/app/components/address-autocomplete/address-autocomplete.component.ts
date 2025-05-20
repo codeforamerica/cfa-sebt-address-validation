@@ -28,11 +28,6 @@ import {
 import { SmartyAutocompleteService } from '../../services/smarty-autocomplete.service';
 import { isPlatformBrowser } from '@angular/common';
 
-// export type AddressSelectedEvent = Pick<
-//     Address,
-//     'streetAddress' | 'city' | 'state' | 'postalCode'
-// >;
-
 export type SuggestionFilters = Pick<Address, 'city' | 'state' | 'postalCode'>;
 
 @Component({
